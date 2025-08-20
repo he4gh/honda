@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concessionária Honda</title>
+    <!-- Incluindo a fonte Inter e o Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Definindo as variáveis de cor e a fonte padrão */
+        :root {
+            --primary-color: #e31a1a;
+            --secondary-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f0f0;
+            color: #333333;
+        }
+
+        /* Configurações básicas do Tailwind para as cores */
+        .bg-honda-primary { background-color: var(--primary-color); }
+        .text-honda-primary { color: var(--primary-color); }
+        .bg-honda-secondary { background-color: var(--secondary-color); }
+        .text-honda-secondary { color: var(--secondary-color); }
+    </style>
+</head>
+<body class="p-5">
+    <!-- Título principal com estilo Honda -->
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-center my-8 uppercase text-honda-primary">
+        Concessionária Honda
+    </h1>
+
+    <!-- Menu de navegação com o botão "CARROS" removido. Os botões "HOME" e "SOBRE" agora chamam funções JavaScript. -->
+    <nav id="menu" class="bg-honda-secondary text-white p-4 rounded-xl shadow-lg mb-8 flex flex-col sm:flex-row justify-center items-center gap-6">
+        <button onclick="showHome()" class="text-white hover:text-honda-primary transition-colors duration-300 font-semibold text-lg">HOME</button>
+        <button onclick="showAbout()" class="text-white hover:text-honda-primary transition-colors duration-300 font-semibold text-lg">SOBRE</button>
+        <button id="search-btn" class="text-white hover:text-honda-primary transition-colors duration-300 font-semibold text-lg" onclick="showSearchModal()">
+            Pesquisar
+        </button>
+    </nav>
+
+    <!-- Seção principal da Home, que exibe os carros. Inicialmente visível. -->
+    <div id="home-section" class="block">
+        <!-- Layout de grade responsivo. Agora com mais colunas em telas maiores para reduzir o tamanho dos cartões. -->
+        <div id="carros" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 p-4">
+            <!-- O conteúdo dos carros será gerado dinamicamente via JavaScript -->
+        </div>
+    </div>
+
+    <!-- Seção Sobre, que exibe informações sobre a Honda. Inicialmente oculta. -->
+    <div id="about-section" class="hidden">
+        <div class="bg-white p-8 rounded-xl shadow-md max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold mb-4 text-honda-secondary">Sobre a Honda</h2>
+            <p class="text-gray-700 text-lg leading-relaxed">
+                Fundada em 1948 por Soichiro Honda, a Honda Motor Company é uma multinacional japonesa conhecida por sua engenharia de precisão e inovação. A empresa começou produzindo motocicletas e rapidamente se expandiu para o mercado de automóveis, tornando-se uma das maiores fabricantes do mundo.
+            </p>
+            <p class="text-gray-700 text-lg leading-relaxed mt-4">
+                Com um compromisso com a qualidade, a segurança e a sustentabilidade, a Honda busca constantemente desenvolver tecnologias que melhorem a experiência de condução. Seus veículos são reconhecidos globalmente por sua confiabilidade, eficiência de combustível e design arrojado. A filosofia da Honda, baseada no respeito ao indivíduo e em uma visão global, impulsiona a empresa a criar produtos que não apenas atendam às necessidades de seus clientes, mas também contribuam para uma sociedade melhor.
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal para exibir os detalhes e o fluxo de compra -->
+    <div id="carModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm hidden">
+        <div class="bg-white p-8 rounded-lg shadow-2xl relative w-11/12 max-w-2xl max-h-[95vh] overflow-y-auto transform transition-transform duration-300 scale-95 opacity-0" id="modal-content-container">
+            <span class="absolute top-4 right-6 text-3xl font-bold cursor-pointer text-gray-400 hover:text-honda-primary transition-colors" onclick="closeModal()">&times;</span>
+            <div id="modal-details" class="modal-body mt-4">
+                <!-- Conteúdo dinâmico será inserido aqui (detalhes, formulário, confirmação, agradecimento) -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos carros e das lojas
+        const carsData = [
+            {
+                id: 'civic-exl',
+                name: 'Honda Civic EXL 2020',
+                image: 'https://revistacarro.com.br/wp-content/uploads/2019/11/Honda-Civic-EXL-1.jpg',
+                price: 'R$ 120.000,00',
+                specs: {
+                    motor: '2.0 i-VTEC Aspirado',
+                    cilindradas: '1997 cc',
+                    cavalos: '155 cv',
+                    torque: '19.5 kgfm',
+                    transmissao: 'CVT',
+                    tipoCombustivel: 'Flex',
+                    consumoCidade: '10.5 km/l (gasolina)',
+                    consumoEstrada: '13.0 km/l (gasolina)',
+                    aceleracao: '0 a 100 km/h em 9.5s',
+                    velocidadeMaxima: '200 km/h',
+                    comprimento: '4,64 m',
+                    largura: '1,80 m',
+                    altura: '1,43 m',
+                    capacidadeTanque: '56 litros',
+                    capacidadePortaMalas: '519 litros',
+                    tracao: 'Dianteira'
+                }
+            },
+            {
+                id: 'civic-type-r',
+                name: 'Honda Civic Type R',
+                image: 'https://image.webmotors.com.br/_fotos/anunciousados/gigante/2025/202507/20250703/HONDA-CIVIC-2.0-DI-VTEC-TURBO-GASOLINA-TYPE-R-MANUAL-wmimagem08315634814.jpg',
+                price: 'R$ 460.000,00',
+                specs: {
+                    motor: '2.0 VTEC Turbo',
+                    cilindradas: '1996 cc',
+                    cavalos: '297 cv',
+                    torque: '40.8 kgfm',
+                    transmissao: 'Manual de 6 marchas',
+                    tipoCombustivel: 'Gasolina',
+                    consumoCidade: '8.4 km/l',
+                    consumoEstrada: '10.5 km/l',
+                    aceleracao: '0 a 100 km/h em 5.4s',
+                    velocidadeMaxima: '275 km/h',
+                    comprimento: '4,59 m',
+                    largura: '1,89 m',
+                    altura: '1,41 m',
+                    capacidadeTanque: '47 litros',
+                    capacidadePortaMalas: '410 litros',
+                    tracao: 'Dianteira'
+                }
+            },
+            {
+                id: 'hrv',
+                name: 'Honda HR-V',
+                image: 'https://cdn.motor1.com/images/mgl/nAylgy/s1/honda-hr-v-touring-2023.jpg',
+                price: 'R$ 150.000,00',
+                specs: {
+                    motor: '1.5 DOHC i-VTEC Flex',
+                    cilindradas: '1497 cc',
+                    cavalos: '126 cv',
+                    torque: '15.8 kgfm',
+                    transmissao: 'CVT',
+                    tipoCombustivel: 'Flex',
+                    consumoCidade: '8.8 km/l (etanol) / 12.7 km/l (gasolina)',
+                    consumoEstrada: '9.8 km/l (etanol) / 13.9 km/l (gasolina)',
+                    aceleracao: '0 a 100 km/h em 11.2s',
+                    velocidadeMaxima: '175 km/h',
+                    comprimento: '4,33 m',
+                    largura: '1,79 m',
+                    altura: '1,59 m',
+                    capacidadeTanque: '50 litros',
+                    capacidadePortaMalas: '354 litros',
+                    tracao: 'Dianteira'
+                }
+            },
+            {
+                id: 'crv',
+                name: 'Honda CR-V',
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPejzO2Y84BWm3nueYdwtzUfRt6tnLirmsEg&s',
+                price: 'R$ 220.000,00',
+                specs: {
+                    motor: '1.5 Turbo',
+                    cilindradas: '1498 cc',
+                    cavalos: '190 cv',
+                    torque: '24.5 kgfm',
+                    transmissao: 'CVT',
+                    tipoCombustivel: 'Gasolina',
+                    consumoCidade: '10.4 km/l',
+                    consumoEstrada: '11.9 km/l',
+                    aceleracao: '0 a 100 km/h em 9.5s',
+                    velocidadeMaxima: '200 km/h',
+                    comprimento: '4,63 m',
+                    largura: '1,85 m',
+                    altura: '1,68 m',
+                    capacidadeTanque: '57 litros',
+                    capacidadePortaMalas: '522 litros',
+                    tracao: 'Dianteira / Integral'
+                }
+            },
+            {
+                id: 'city',
+                name: 'Honda City',
+                image: 'https://mlqt0se4pk9p.i.optimole.com/q:85/https://www.autodata.com.br/wordpress/wp-content/uploads//2022/09/HONDA-NEW-CITY-HATCHBACK-1-scaled.jpg',
+                price: 'R$ 105.000,00',
+                specs: {
+                    motor: '1.5 i-VTEC Flex',
+                    cilindradas: '1498 cc',
+                    cavalos: '126 cv',
+                    torque: '15.5 kgfm',
+                    transmissao: 'CVT',
+                    tipoCombustivel: 'Flex',
+                    consumoCidade: '9.2 km/l (etanol) / 13.1 km/l (gasolina)',
+                    consumoEstrada: '10.5 km/l (etanol) / 15.2 km/l (gasolina)',
+                    aceleracao: '0 a 100 km/h em 10.5s',
+                    velocidadeMaxima: '180 km/h',
+                    comprimento: '4,55 m',
+                    largura: '1,74 m',
+                    altura: '1,47 m',
+                    capacidadeTanque: '44 litros',
+                    capacidadePortaMalas: '519 litros',
+                    tracao: 'Dianteira'
+                }
+            },
+            {
+                id: 'fit',
+                name: 'Honda Fit',
+    image: 'https://fotos-jornaldocarro-estadao.nyc3.cdn.digitaloceanspaces.com/uploads/2018/01/22084945/Honda-Fit-2-1.jpg',
+                price: 'R$ 95.000,00',
+                specs: {
+                    motor: '1.5 i-VTEC Flex',
+                    cilindradas: '1496 cc',
+                    cavalos: '116 cv',
+                    torque: '15.3 kgfm',
+                    transmissao: 'CVT',
+                    tipoCombustivel: 'Flex',
+                    consumoCidade: '11.6 km/l (etanol) / 13.3 km/l (gasolina)',
+                    consumoEstrada: '13.3 km/l (etanol) / 14.5 km/l (gasolina)',
+                    aceleracao: '0 a 100 km/h em 11.2s',
+                    velocidadeMaxima: '175 km/h',
+                    comprimento: '4,09 m',
+                    largura: '1,69 m',
+                    altura: '1,53 m',
+                    capacidadeTanque: '45 litros',
+                    capacidadePortaMalas: '363 litros',
+                    tracao: 'Dianteira'
+                }
+            },
+            {
+                id: 'accord',
+                name: 'Honda Accord',
+                image: 'https://cdn.autopapo.com.br/box/uploads/2021/04/09115750/honda-accord-hibrido-branco-de-frente-na-estrada.jpg',
+                price: 'R$ 280.000,00',
+                specs: {
+                    motor: '2.0 DOHC i-VTEC + elétrico',
+                    cilindradas: '1993 cc',
+                    cavalos: '215 cv (combinado)',
+                    torque: '32.1 kgfm (elétrico)',
+                    transmissao: 'e-CVT (eletrônica)',
+                    tipoCombustivel: 'Híbrido (gasolina + elétrico)',
+                    consumoCidade: '17.6 km/l',
+                    consumoEstrada: '17.1 km/l',
+                    aceleracao: '0 a 100 km/h em 7.5s',
+                    velocidadeMaxima: '190 km/h',
+                    comprimento: '4,98 m',
+                    largura: '1,86 m',
+                    altura: '1,45 m',
+                    capacidadeTanque: '48.5 litros',
+                    capacidadePortaMalas: '473 litros',
+                    tracao: 'Dianteira'
+                }
+            },
+            {
+                id: 'pilot',
+                name: 'Honda Pilot',
+                image: 'https://hips.hearstapps.com/hmg-prod/images/2025-honda-pilot-black-edition-01-65e1e8b47b986.jpg?crop=0.587xw:0.587xh;0.231xw,0.262xh&resize=1200:*',
+                price: 'R$ 350.000,00',
+                specs: {
+                    motor: '3.5 V6',
+                    cilindradas: '3471 cc',
+                    cavalos: '280 cv',
+                    torque: '36.2 kgfm',
+                    transmissao: 'Automática de 9 marchas',
+                    tipoCombustivel: 'Gasolina',
+                    consumoCidade: '7.8 km/l',
+                    consumoEstrada: '10.0 km/l',
+                    aceleracao: '0 a 100 km/h em 6.9s',
+                    velocidadeMaxima: '180 km/h',
+                    comprimento: '5,00 m',
+                    largura: '1,99 m',
+                    altura: '1,79 m',
+                    capacidadeTanque: '73.8 litros',
+                    capacidadePortaMalas: '527 litros',
+                    tracao: 'Integral (AWD)'
+                }
+            },
+            {
+                id: 'passport',
+                name: 'Honda Passport',
+                image: 'https://www.motornet.com.br/files/uploads/0948a93c-b1c0-42a2-92fc-3ee5ba3f6f63.jpg',
+                price: 'R$ 300.000,00',
+                specs: {
+                    motor: '3.5 V6',
+                    cilindradas: '3471 cc',
+                    cavalos: '280 cv',
+                    torque: '36.2 kgfm',
+                    transmissao: 'Automática de 9 marchas',
+                    tipoCombustivel: 'Gasolina',
+                    consumoCidade: '7.6 km/l',
+                    consumoEstrada: '10.1 km/l',
+                    aceleracao: '0 a 100 km/h em 7.0s',
+                    velocidadeMaxima: '180 km/h',
+                    comprimento: '4,84 m',
+                    largura: '1,99 m',
+                    altura: '1,83 m',
+                    capacidadeTanque: '73.8 litros',
+                    capacidadePortaMalas: '1167 litros',
+                    tracao: 'Integral (AWD)'
+                }
+            },
+            {
+                id: 'ridgeline',
+                name: 'Honda Ridgeline',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/2022_Honda_Ridgeline_Touring_in_Sonic_Gray_Pearl%2C_front_left%2C_2024-05-11.jpg/960px-2022_Honda_Ridgeline_Touring_in_Sonic_Gray_Pearl%2C_front_left%2C_2024-05-11.jpg',
+                price: 'R$ 380.000,00',
+                specs: {
+                    motor: '3.5 V6',
+                    cilindradas: '3471 cc',
+                    cavalos: '280 cv',
+                    torque: '36.2 kgfm',
+                    transmissao: 'Automática de 9 marchas',
+                    tipoCombustivel: 'Gasolina',
+                    consumoCidade: '7.2 km/l',
+                    consumoEstrada: '9.4 km/l',
+                    aceleracao: '0 a 100 km/h em 7.2s',
+                    velocidadeMaxima: '180 km/h',
+                    comprimento: '5,34 m',
+                    largura: '1,99 m',
+                    altura: '1,79 m',
+                    capacidadeTanque: '73.8 litros',
+                    capacidadePortaMalas: '400 litros (caçamba)',
+                    tracao: 'Integral (AWD)'
+                }
+            }
+        ];
+        
+        const storesData = [
+            { id: 'loja-sp', name: 'Honda Center São Paulo' },
+            { id: 'loja-rj', name: 'Honda Rio Barra da Tijuca' },
+            { id: 'loja-mg', name: 'Honda Minas Belo Horizonte' }
+        ];
+
+        // Função para mostrar a seção Home
+        function showHome() {
+            document.getElementById('home-section').classList.remove('hidden');
+            document.getElementById('about-section').classList.add('hidden');
+            generateCarCards();
+        }
+
+        // Função para mostrar a seção Sobre
+        function showAbout() {
+            document.getElementById('home-section').classList.add('hidden');
+            document.getElementById('about-section').classList.remove('hidden');
+        }
+
+        // Função para gerar os cartões dos carros
+        function generateCarCards() {
+            const container = document.getElementById('carros');
+            container.innerHTML = ''; // Limpa o conteúdo existente
+            
+            carsData.forEach(car => {
+                const carCard = document.createElement('div');
+                // Estilos de cartão com classes Tailwind
+                carCard.classList.add('bg-white', 'rounded-xl', 'shadow-md', 'p-5', 'flex', 'flex-col', 'items-center', 'text-center', 'transition-transform', 'duration-300', 'hover:scale-105');
+                
+                // Conteúdo do cartão com classes Tailwind
+                carCard.innerHTML = `
+                    <img src="${car.image}" alt="${car.name}" class="w-full h-auto rounded-md object-cover mb-4">
+                    <h3 class="text-xl font-bold mb-2">${car.name}</h3>
+                    <p class="text-lg text-gray-600 mb-4 font-semibold"><strong>PREÇO:</strong> ${car.price}</p>
+                    <button class="bg-honda-primary text-white py-2 px-6 rounded-full font-bold shadow-md hover:bg-red-700 transition-colors" onclick="showCarDetails('${car.id}')">
+                        Visualizar
+                    </button>
+                `;
+                container.appendChild(carCard);
+            });
+        }
+        
+        // Função para mostrar o modal de pesquisa
+        function showSearchModal() {
+            const modal = document.getElementById('carModal');
+            const modalDetails = document.getElementById('modal-details');
+            const modalContent = document.getElementById('modal-content-container');
+
+            modalDetails.innerHTML = '';
+            
+            // Cria o formulário de pesquisa
+            const searchFormHtml = `
+                <h3 class="text-3xl font-extrabold mb-6 text-center text-honda-secondary">Pesquisar Carro</h3>
+                <div class="space-y-6">
+                    <div>
+                        <label for="car-select" class="block text-sm font-semibold text-gray-700">Selecione o carro:</label>
+                        <select id="car-select" name="car-select" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-honda-primary focus:border-honda-primary" onchange="handleCarSelect(this)">
+                            <option value="" disabled selected>Escolha um carro...</option>
+                            ${carsData.map(car => `<option value="${car.id}">${car.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+            `;
+            modalDetails.innerHTML = searchFormHtml;
+
+            // Exibe o modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animação de entrada
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Função para lidar com a seleção do carro e mostrar os detalhes
+        function handleCarSelect(selectElement) {
+            const carId = selectElement.value;
+            if (carId) {
+                showCarDetails(carId);
+                // Reseta a seleção para a opção padrão
+                selectElement.value = '';
+            }
+        }
+
+        // Função para mostrar o modal com os detalhes do carro
+        function showCarDetails(carId) {
+            const car = carsData.find(c => c.id === carId);
+            if (!car) return;
+
+            const modal = document.getElementById('carModal');
+            const modalDetails = document.getElementById('modal-details');
+            const modalContent = document.getElementById('modal-content-container');
+
+            // Limpa o conteúdo anterior do modal
+            modalDetails.innerHTML = '';
+
+            // Adiciona o nome do carro e a imagem
+            const nameEl = document.createElement('h3');
+            nameEl.textContent = car.name;
+            nameEl.classList.add('text-3xl', 'font-extrabold', 'mb-4', 'text-honda-secondary');
+            modalDetails.appendChild(nameEl);
+
+            const imgEl = document.createElement('img');
+            imgEl.src = car.image;
+            imgEl.alt = car.name;
+            imgEl.classList.add('w-full', 'rounded-md', 'mb-6');
+            modalDetails.appendChild(imgEl);
+
+            // Adiciona as especificações detalhadas
+            const specsContainer = document.createElement('div');
+            specsContainer.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'gap-4', 'text-gray-700');
+            
+            for (const [key, value] of Object.entries(car.specs)) {
+                const specItem = document.createElement('div');
+                specItem.classList.add('flex', 'flex-col', 'p-2', 'bg-gray-100', 'rounded-md');
+                const specName = key.replace(/([A-Z])/g, ' $1').trim();
+                specItem.innerHTML = `<span class="font-bold text-honda-primary capitalize">${specName}:</span> <span>${value}</span>`;
+                specsContainer.appendChild(specItem);
+            }
+            modalDetails.appendChild(specsContainer);
+            
+            // Adiciona o botão "Comprar" ao final do modal.
+            const buyButton = document.createElement('button');
+            buyButton.textContent = 'Comprar';
+            buyButton.classList.add('bg-green-600', 'text-white', 'py-3', 'px-8', 'rounded-full', 'font-bold', 'shadow-lg', 'hover:bg-green-700', 'transition-colors', 'mt-6', 'w-full', 'sm:w-auto', 'mx-auto', 'block');
+            buyButton.onclick = () => showBuyForm(carId);
+            modalDetails.appendChild(buyButton);
+            
+            // Exibe o modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animação de entrada
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Função para mostrar o formulário de compra
+        function showBuyForm(carId) {
+            const modalDetails = document.getElementById('modal-details');
+            const car = carsData.find(c => c.id === carId);
+
+            // Limpa o conteúdo anterior
+            modalDetails.innerHTML = '';
+
+            // Título do formulário
+            const titleEl = document.createElement('h3');
+            titleEl.textContent = `Comprar ${car.name}`;
+            titleEl.classList.add('text-3xl', 'font-extrabold', 'mb-6', 'text-center', 'text-honda-secondary');
+            modalDetails.appendChild(titleEl);
+
+            // Formulário HTML
+            const formEl = document.createElement('form');
+            formEl.id = 'buy-form';
+            formEl.classList.add('space-y-6');
+            
+            formEl.innerHTML = `
+                <div>
+                    <label for="firstName" class="block text-sm font-semibold text-gray-700">Nome:</label>
+                    <input type="text" id="firstName" name="firstName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-honda-primary focus:border-honda-primary" required>
+                </div>
+                <div>
+                    <label for="lastName" class="block text-sm font-semibold text-gray-700">Sobrenome:</label>
+                    <input type="text" id="lastName" name="lastName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-honda-primary focus:border-honda-primary" required>
+                </div>
+                <div>
+                    <label for="birthDate" class="block text-sm font-semibold text-gray-700">Data de Nascimento:</label>
+                    <input type="date" id="birthDate" name="birthDate" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-honda-primary focus:border-honda-primary" required>
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-gray-700">Gmail:</label>
+                    <input type="email" id="email" name="email" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-honda-primary focus:border-honda-primary" required pattern="[a-zA-Z0-9._%+-]+@gmail\\.com$" title="Por favor, insira um endereço de e-mail válido (@gmail.com).">
+                </div>
+                <div>
+                    <label for="store" class="block text-sm font-semibold text-gray-700">Selecionar Loja:</label>
+                    <select id="store" name="store" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-honda-primary focus:border-honda-primary" required>
+                        ${storesData.map(store => `<option value="${store.id}">${store.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="flex justify-center">
+                    <button type="submit" class="bg-honda-primary text-white py-3 px-8 rounded-full font-bold shadow-lg hover:bg-red-700 transition-colors w-full sm:w-auto">
+                        Enviar Formulário
+                    </button>
+                </div>
+            `;
+            
+            // Adiciona o formulário ao modal e lida com a submissão
+            modalDetails.appendChild(formEl);
+            formEl.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Pega os dados do formulário e passa para a próxima etapa
+                const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    birthDate: document.getElementById('birthDate').value,
+                    email: document.getElementById('email').value,
+                    store: document.getElementById('store').value
+                };
+                showConfirmation(carId, formData);
+            });
+        }
+        
+        // Função para mostrar a tela de confirmação
+        function showConfirmation(carId, formData) {
+            const modalDetails = document.getElementById('modal-details');
+            const car = carsData.find(c => c.id === carId);
+            const storeName = storesData.find(s => s.id === formData.store).name;
+            
+            modalDetails.innerHTML = '';
+
+            const confirmationHTML = `
+                <h3 class="text-3xl font-extrabold mb-6 text-center text-honda-secondary">Confirmar Compra</h3>
+                <div class="space-y-4 text-center text-gray-700">
+                    <p class="text-xl font-bold">${car.name}</p>
+                    <img src="${car.image}" alt="${car.name}" class="w-full h-48 object-cover rounded-md mx-auto my-4">
+                    <p><strong>Nome:</strong> ${formData.firstName} ${formData.lastName}</p>
+                    <p><strong>Data de Nascimento:</strong> ${formData.birthDate}</p>
+                    <p><strong>E-mail:</strong> ${formData.email}</p>
+                    <p><strong>Loja de Retirada:</strong> ${storeName}</p>
+                </div>
+                <div class="flex justify-center mt-8">
+                    <button class="bg-green-600 text-white py-3 px-8 rounded-full font-bold shadow-lg hover:bg-green-700 transition-colors w-full sm:w-auto" onclick="confirmPurchase('${carId}', '${storeName}')">
+                        Confirmar Compra
+                    </button>
+                </div>
+            `;
+            modalDetails.innerHTML = confirmationHTML;
+        }
+
+        // Função para mostrar a mensagem de agradecimento final
+        function confirmPurchase(carId, storeName) {
+            const modalDetails = document.getElementById('modal-details');
+            modalDetails.innerHTML = `
+                <h3 class="text-3xl font-extrabold mb-6 text-center text-honda-secondary">Compra Realizada!</h3>
+                <p class="text-xl text-center text-gray-700">Parabéns! Sua compra foi confirmada.</p>
+                <p class="text-xl font-semibold text-center mt-4">Você pode buscar seu carro em aproximadamente 2 meses na loja:</p>
+                <p class="text-2xl text-center font-bold text-honda-primary mt-2">${storeName}</p>
+                <div class="flex justify-center mt-8">
+                    <button class="bg-gray-400 text-white py-3 px-8 rounded-full font-bold shadow-lg hover:bg-gray-500 transition-colors w-full sm:w-auto" onclick="closeModal()">
+                        Fechar
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Função para fechar o modal
+        function closeModal() {
+            const modal = document.getElementById('carModal');
+            const modalContent = document.getElementById('modal-content-container');
+            
+            // Animação de saída
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300); // Aguarda a animação terminar
+        }
+
+        // Ao carregar a página, a Home é exibida por padrão
+        window.onload = showHome;
+    </script>
+</body>
+</html>
